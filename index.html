@@ -1,0 +1,1193 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Agent 访问网站的技术方案谱系</title>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Palette based on user's reference image */
+      --api-color: #139a8c;
+      --api-bg: #f0fbf9;
+      --api-border: #cceee9;
+      
+      --interface-color: #0ea5e9;
+      --interface-bg: #f0f9ff;
+      --interface-border: #bae6fd;
+      
+      --html-color: #d97706;
+      --html-bg: #fdfbf7;
+      --html-border: #fef3c7;
+      
+      --runtime-color: #1d7fc4;
+      --runtime-bg: #f0f7ff;
+      --runtime-border: #dbeafe;
+      
+      --actions-color: #704fa4;
+      --actions-bg: #f5f3ff;
+      --actions-border: #e9e3ff;
+      
+      --desktop-color: #9c542a;
+      --desktop-bg: #faf6f0;
+      --desktop-border: #f5e6d3;
+
+      /* Core Theme Variables */
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      --bg-page: #f1f5f9;
+      --bg-card: #ffffff;
+      --border-light: #e2e8f0;
+      
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -1px rgba(15, 23, 42, 0.02);
+      --shadow-premium: 0 20px 25px -5px rgba(15, 23, 42, 0.05), 0 10px 10px -5px rgba(15, 23, 42, 0.03);
+      --shadow-share: 0 30px 60px -15px rgba(15, 23, 42, 0.08), 0 15px 30px -10px rgba(15, 23, 42, 0.04);
+
+      --font-title: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      font-family: var(--font-body);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      padding: 48px 24px;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 56px;
+    }
+
+    /* Share Card Container: designed to look like a high-res infographic image */
+    .share-card {
+      background: #ffffff;
+      border: 1px solid rgba(15, 23, 42, 0.05);
+      border-radius: 24px;
+      box-shadow: var(--shadow-share);
+      padding: 48px 24px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .share-card-header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .share-card-header h1 {
+      font-family: var(--font-title);
+      font-size: 34px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: #0f172a;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    .share-card-header .subtitle {
+      font-size: 15px;
+      color: var(--text-secondary);
+      max-width: 840px;
+      margin: 0 auto;
+      font-weight: 500;
+    }
+
+    /* Infographic Columns Container */
+    .infographic-flex {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      gap: 3px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    /* Column Wrapper */
+    .info-column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background-color: transparent;
+      padding: 0;
+      min-width: 0;
+    }
+
+    /* Chevron Header */
+    .chevron-header {
+      height: 80px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: #ffffff;
+      background-color: var(--col-color);
+      z-index: 2;
+    }
+
+    /* Chevron Header widths, margins, paddings and border-radius for each column (Desktop) */
+    @media (min-width: 1025px) {
+      .info-column.col-1 { z-index: 6; }
+      .info-column.col-2 { z-index: 5; }
+      .info-column.col-3 { z-index: 4; }
+      .info-column.col-4 { z-index: 3; }
+      .info-column.col-5 { z-index: 2; }
+      .info-column.col-6 { z-index: 1; }
+
+      .info-column.col-1 .chevron-header {
+        width: calc(100% + 16px);
+        margin-left: 0;
+        border-top-left-radius: 12px;
+        padding-left: 0;
+        padding-right: 16px;
+        clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%);
+      }
+      .info-column.col-2 .chevron-header,
+      .info-column.col-3 .chevron-header,
+      .info-column.col-4 .chevron-header,
+      .info-column.col-5 .chevron-header {
+        width: calc(100% + 16px);
+        margin-left: 0;
+        padding-left: 0;
+        padding-right: 16px;
+        clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%, 16px 50%);
+      }
+      .info-column.col-6 .chevron-header {
+        width: 100%;
+        margin-left: 0;
+        border-top-right-radius: 12px;
+        padding-left: 0;
+        padding-right: 0;
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 16px 50%);
+      }
+    }
+
+    .chevron-header .num-circle {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #ffffff;
+      color: var(--col-color);
+      font-family: var(--font-title);
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .chevron-header .title-text {
+      font-family: var(--font-body);
+      font-size: 13.5px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }
+
+    /* Card Body */
+    .card-body {
+      flex-grow: 1;
+      background-color: var(--col-bg);
+      padding: 24px 8px;
+      display: flex;
+      flex-direction: column;
+      min-height: 420px;
+      border-left: 1px solid var(--col-border);
+      border-right: 1px solid var(--col-border);
+      border-bottom: 1px solid var(--col-border);
+      border-top: none;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+    }
+
+    /* Read Write Rows */
+    .rw-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      height: 82px; /* Fixed height to align projects-box top edges */
+      margin-bottom: 20px;
+    }
+
+    .rw-row {
+      display: flex;
+      align-items: flex-start;
+      font-size: 13px;
+      line-height: 1.35;
+      height: 38px;
+    }
+
+    .rw-label {
+      font-weight: 800;
+      color: var(--col-color);
+      flex-shrink: 0;
+      margin-right: 4px;
+    }
+
+    .rw-val {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* Representative Projects Container */
+    .projects-box {
+      display: flex;
+      flex-direction: column;
+      background: #ffffff;
+      border: 1px solid var(--col-border);
+      border-radius: 10px;
+      overflow: hidden;
+      flex-grow: 1;
+    }
+
+    .projects-label {
+      background: var(--col-bg);
+      border-bottom: 1px solid var(--col-border);
+      padding: 6px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--col-color);
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    .projects-list {
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .project-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 4px 6px;
+      border-radius: 6px;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .project-item:hover {
+      background: var(--col-bg);
+      color: var(--col-color);
+      transform: translateY(-1px);
+    }
+
+    /* Logo Icons */
+    .project-icon {
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .project-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Logo background blocks for specific brands (X, browser-use, Browserbase, OpenCLI bridge) */
+    .bg-dark-logo {
+      background-color: #0f172a;
+      color: #ffffff;
+      border-radius: 4px;
+      padding: 2px;
+    }
+
+    /* Brand Colors for Standalone SVGs */
+    .brand-github { color: #24292f; }
+    .brand-opencli { color: #087d7b; }
+    .brand-firecrawl { color: #ff5a5f; }
+    .brand-crawl4ai { color: #0f172a; }
+    .brand-playwright { color: #2e8b57; }
+    .brand-stagehand { color: #3b82f6; }
+    .brand-skyvern { color: #0ea5e9; }
+    .brand-codex { color: #1e293b; }
+    .brand-openai { color: #0f172a; }
+    .brand-claude { color: #d97752; }
+    .brand-gemini { color: #1a73e8; }
+
+    /* Bottom Trade-off Bar */
+    .tradeoff-container {
+      background: #ffffff;
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tradeoff-arrow {
+      display: flex;
+      align-items: center;
+      flex-grow: 1;
+      height: 24px;
+    }
+
+    .tradeoff-arrow.left {
+      color: var(--api-color);
+      margin-right: 16px;
+    }
+
+    .tradeoff-arrow.right {
+      color: var(--desktop-color);
+      margin-left: 16px;
+    }
+
+    .tradeoff-arrow .line {
+      height: 6px;
+      background-color: currentColor;
+      flex-grow: 1;
+      border-radius: 3px;
+    }
+
+    .tradeoff-arrow .arrowhead {
+      width: 0;
+      height: 0;
+      border-top: 8px solid transparent;
+      border-bottom: 8px solid transparent;
+      flex-shrink: 0;
+    }
+
+    .tradeoff-arrow.left .arrowhead {
+      border-right: 12px solid currentColor;
+      margin-right: -1px;
+    }
+
+    .tradeoff-arrow.right .arrowhead {
+      border-left: 12px solid currentColor;
+      margin-left: -1px;
+    }
+
+    .tradeoff-text {
+      font-size: 14px;
+      font-weight: 700;
+      font-family: var(--font-title);
+      text-align: center;
+      flex-shrink: 0;
+      padding: 0 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .tradeoff-text .text-left {
+      color: var(--api-color);
+    }
+
+    .tradeoff-text .text-sep {
+      color: var(--text-muted);
+      margin: 0 12px;
+      font-weight: 500;
+    }
+
+    .tradeoff-text .text-right {
+      color: var(--desktop-color);
+    }
+
+    .footnote {
+      text-align: center;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Detailed Editorial Section */
+    .detailed-section {
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      border-top: 1px solid var(--border-light);
+      padding-top: 48px;
+    }
+
+    .detailed-section h2 {
+      font-family: var(--font-title);
+      font-size: 26px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-bottom: 28px;
+      text-align: center;
+    }
+
+    /* 4-column Grid */
+    .grid-4col {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .detailed-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+
+    .detailed-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .detailed-card h3 {
+      font-family: var(--font-title);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .detailed-card p {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    /* 3-column Grid */
+    .grid-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .detailed-card h3.tag-api { color: var(--api-color); }
+    .detailed-card h3.tag-extract { color: var(--html-color); }
+    .detailed-card h3.tag-browser { color: var(--runtime-color); }
+    .detailed-card h3.tag-agent { color: var(--actions-color); }
+    .detailed-card h3.tag-computer { color: var(--desktop-color); }
+
+    /* Decision Grid */
+    .decision-matrix {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+
+    .decision-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .decision-card h3 {
+      font-family: var(--font-title);
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: #0f172a;
+    }
+
+    .decision-card ul {
+      padding-left: 20px;
+      font-size: 13.5px;
+      color: var(--text-secondary);
+    }
+
+    .decision-card li {
+      margin-bottom: 10px;
+      line-height: 1.55;
+    }
+
+    .decision-card li strong {
+      color: var(--text-primary);
+    }
+
+    /* Comparison Table Container */
+    .table-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      overflow-x: auto;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 32px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      text-align: left;
+    }
+
+    th {
+      background: #f8fafc;
+      padding: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    td {
+      padding: 18px 16px;
+      border-bottom: 1px solid var(--border-light);
+      vertical-align: top;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .label-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .label-badge.api { background-color: var(--api-color); }
+    .label-badge.interface { background-color: var(--interface-color); }
+    .label-badge.html { background-color: var(--html-color); }
+    .label-badge.runtime { background-color: var(--runtime-color); }
+    .label-badge.actions { background-color: var(--actions-color); }
+    .label-badge.desktop { background-color: var(--desktop-color); }
+
+    .detailed-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .detailed-chip {
+      font-size: 11.5px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: #f1f5f9;
+      color: var(--text-secondary);
+      border: 1px solid var(--border-light);
+      font-weight: 600;
+    }
+
+    /* Page Footer */
+    footer {
+      border-top: 1px solid var(--border-light);
+      padding-top: 24px;
+      text-align: center;
+      font-size: 12.5px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    footer a {
+      color: var(--runtime-color);
+      text-decoration: none;
+      font-weight: 600;
+      margin: 0 8px;
+      transition: color 0.2s ease;
+    }
+
+    footer a:hover {
+      color: #1d4ed8;
+      text-decoration: underline;
+    }
+
+    /* Responsive Adaptation (Mobile & Tablet) */
+    @media (max-width: 1024px) {
+      body {
+        padding: 24px 16px;
+      }
+
+      main {
+        gap: 36px;
+      }
+
+      .share-card {
+        padding: 32px 20px;
+        border-radius: 16px;
+      }
+
+      .share-card-header h1 {
+        font-size: 26px;
+      }
+
+      .infographic-flex {
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      /* Reset desktop-only clip paths & negative margins on mobile */
+      .info-column {
+        clip-path: none !important;
+        margin-right: 0 !important;
+        border-radius: 12px;
+        border: 1px solid var(--col-border);
+        padding: 0;
+        background-color: transparent;
+      }
+
+      .info-column .chevron-header {
+        height: 56px;
+        flex-direction: row;
+        gap: 10px;
+        border-radius: 11px 11px 0 0 !important;
+        padding: 0 16px !important;
+        width: 100% !important;
+        margin-left: 0 !important;
+        justify-content: flex-start;
+        clip-path: none !important;
+      }
+
+      .card-body {
+        min-height: auto;
+        border-radius: 0 0 11px 11px !important;
+        padding: 20px 16px;
+        border: none !important;
+        margin-right: 0 !important;
+      }
+
+      .info-column.col-1 .card-body,
+      .info-column.col-6 .card-body {
+        border: none !important;
+      }
+
+      .rw-section {
+        height: auto !important;
+        margin-bottom: 16px;
+      }
+
+      .rw-row {
+        height: auto !important;
+      }
+
+      .tradeoff-container {
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+      }
+
+      .tradeoff-arrow {
+        display: none !important;
+      }
+
+      .tradeoff-text {
+        padding: 8px 0;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .tradeoff-text .text-sep {
+        display: none;
+      }
+
+      .grid-4col, .grid-3col, .decision-matrix {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .detailed-card, .decision-card {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <!-- Shareable Infographic Card -->
+    <div class="share-card" id="infographic-share-card">
+      <div class="share-card-header">
+        <h1>Agent 访问网站的技术方案谱系</h1>
+        <p class="subtitle">从数据获取到实际操作的 6 个技术面（从左到右：抽象度降低，能力增强，成本与风险升高）</p>
+      </div>
+
+      <!-- Infographic Grid -->
+      <div class="infographic-flex">
+        
+        <!-- Column 1 -->
+        <div class="info-column col-1" style="--col-color: var(--api-color); --col-bg: var(--api-bg); --col-border: var(--api-border);">
+          <div class="chevron-header">
+            <span class="num-circle">1</span>
+            <span class="title-text">公开 API</span>
+          </div>
+          <div class="card-body">
+            <div class="rw-section">
+              <div class="rw-row">
+                <span class="rw-label">读：</span>
+                <span class="rw-val">结构化数据</span>
+              </div>
+              <div class="rw-row">
+                <span class="rw-label">写：</span>
+                <span class="rw-val">官方操作</span>
+              </div>
+            </div>
+            
+            <div class="projects-box">
+              <div class="projects-label">代表项目 / 方案</div>
+              <div class="projects-list">
+                <a href="https://developer.x.com/" target="_blank" rel="noopener" class="project-item">
+                  <span class="project-icon bg-dark-logo">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                  </span>
+                  <span>X API</span>
+                </a>
+                <a href="https://docs.github.com/en/rest" target="_blank" rel="noopener" class="project-item">
+                  <span class="project-icon brand-github">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+                  </span>
+                  <span>GitHub API</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 2 -->
+        <div class="info-column col-2" style="--col-color: var(--interface-color); --col-bg: var(--interface-bg); --col-border: var(--interface-border);">
+          <div class="chevron-header">
+            <span class="num-circle">2</span>
+            <span class="title-text">前端内部接口</span>
+          </div>
+          <div class="card-body">
+            <div class="rw-section">
+              <div class="rw-row">
+                <span class="rw-label">读：</span>
+                <span class="rw-val">JSON / GraphQL</span>
+              </div>
+              <div class="rw-row">
+                <span class="rw-label">写：</span>
+                <span class="rw-val">前端提交</span>
+              </div>
+            </div>
+            
+            <div class="projects-box">
+              <div class="projects-label">代表项目 / 方案</div>
+              <div class="projects-list">
+                <a href="https://github.com/jackwener/opencli" target="_blank" rel="noopener" class="project-item">
+                  <span class="project-icon brand-opencli">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 4.9v9.8L12 22l-9-5.3V6.9L12 2z"/><polyline points="8 10 11 12 8 14"/><line x1="12" y1="15" x2="16" y2="15"/></svg>
+                  </span>
+                  <span>OpenCLI adapter</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 3 -->
+        <div class="info-column col-3" style="--col-color: var(--html-color); --col-bg: var(--html-bg); --col-border: var(--html-border);">
+          <div class="chevron-header">
+            <span class="num-circle">3</span>
+            <span class="title-text">HTML 文档</span>
+          </div>
+          <div class="card-body">
+            <div class="rw-section">
+              <div class="rw-row">
+                <span class="rw-label">读：</span>
+                <span class="rw-val">原始文档</span>
+              </div>
+              <div class="rw-row">
+                <span class="rw-label">写：</span>
+                <span class="rw-val">基本不写</span>
+              </div>
+            </div>
+            
+            <div class="projects-box">
+              <div class="projects-label">代表项目 / 方案</div>
+              <div class="projects-list">
+                <a href="https://docs.firecrawl.dev/" target="_blank" rel="noopener" class="project-item">
+                  <span class="project-icon brand-firecrawl">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C11.5 4 10 5.5 8.5 7C7 8.5 6 10.5 6 13C6 16.3 8.7 19 12 19C15.3 19 18 16.3 18 13C18 10 16 7.5 13.5 5.5C13 5 12.5 3 12 2Z"/></svg>
+                  </span>
+                  <span>Firecrawl</span>
+                </a>
+                <a href="https://docs.crawl4ai.com/" target="_blank" rel="noopener" class="project-item">
+                  <span class="project-icon brand-crawl4ai">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><path d="M12 2v5M12 17v5M2 12h5M17 12h5M4 4l3 3M17 17l3 3M4 20l3-3M17 7l3-3"></path></svg>
+                  </span>
+                  <span>Crawl4AI</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 4 -->
+        <div class="info-column col-4" style="--col-color: var(--runtime-color); --col-bg: var(--runtime-bg); --col-border: var(--runtime-border);">
+          <div class="chevron-header">
+            <span class="num-circle">4</span>
+            <span class="title-text">浏览器运行时</span>
+          </div>
+          <div class="card-body">
+            <div class="rw-section">
+              <div class="rw-row">
+                <span class="rw-label">读：</span>
+                <span class="rw-val">DOM / AX / network / pixels</span>
+              </div>
+              <div class="rw-row">
+                <span class="rw-label">写：</span>
+                <span class="rw-val">页面脚本</span>
+              </div>
+            </div>
+            
+            <div class="projects-box">
+              <div class="projects-label">代表项目 / 方案</div>
+              <div class="projects-list">
+                <a href="https://github.com/microsoft/playwright" target="_blank" rel="noopener" class="project-item">
+                  <span class="project-icon brand-playwright">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="20" x2="22" y2="20"></line><polygon points="10 8 15 11 10 14 10 8"></polygon></svg>
+                  </span>
+                  <span>Playwright</span>
+                </a>
+                <a href="https://github.com/jackwener/opencli" target="_blank" rel="noopener" class="project-item">
+                  <span class="project-icon bg-dark-logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+                  </span>
+                  <span>OpenCLI bridge</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 5 -->
+        <div class="info-column col-5" style="--col-color: var(--actions-color); --col-bg: var(--actions-bg); --col-border: var(--actions-border);">
+          <div class="chevron-header">
+            <span class="num-circle">5</span>
+            <span class="title-text">浏览器动作通道</span>
+          </div>
+          <div class="card-body">
+            <div class="rw-section">
+              <div class="rw-row">
+                <span class="rw-label">读：</span>
+                <span class="rw-val">DOM / 截图</span>
+              </div>
+              <div class="rw-row">
+                <span class="rw-label">写：</span>
+                <span class="rw-val">点击 / 输入 / 滚动</span>
+              </div>
+            </div>
+            
+            <div class="projects-box">
+              <div class="projects-label">代表项目 / 方案</div>
+              <div class="projects-list">
+                <a href="https://www.browserbase.com/stagehand/" target="_blank" rel="noopener" class="project-item">
+                  <span class="project-icon brand-stagehand">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5M14 10V5a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v7.5M6 14v-1.5a1.5 1.5 0 0 0-3 0v4.75a6.75 6.75 0 0 0 11.83 4.54l1.9-1.9a2 2 0 0 0 0-2.83v0a2 2 0 0 0-2.83 0l-1.9 1.9"></path></svg>
+                  </span>
+                  <span>Stagehand</span>
+                </a>
+                <a href="https://github.com/browser-use/browser-use" target="_blank" rel="noopener" class="project-item">
+                  <span class="project-icon bg-dark-logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v18M6 12a6 6 0 1 1 0 9"></path></svg>
+                  </span>
+                  <span>browser-use</span>
+                </a>
+                <a href="https://github.com/Skyvern-AI/skyvern" target="_blank" rel="noopener" class="project-item">
+                  <span class="project-icon brand-skyvern">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 21c-.2 0-.4-.1-.5-.2-1.8-1.8-3.5-3.8-3.5-6.8 0-2.8 1.8-5 4-5s4 2.2 4 5c0 3-1.7 5-3.5 6.8-.1.1-.3.2-.5.2zm-2.5-7c0 2 1.1 3.5 2.5 4.9 1.4-1.4 2.5-2.9 2.5-4.9 0-1.7-1.1-3-2.5-3s-2.5 1.3-2.5 3z"/>
+                      <path d="M8.5 11c-2.5 0-5-2-5-4.5S5.5 2 8 2c1.5 0 2.8.8 3.5 2-.7 1.2-1 2.5-1 4 0 1.2.3 2.2.7 3-.7 0-1.7 0-2.7 0zm-.5-7C6.3 4 5.5 4.8 5.5 6.5s1.2 2.5 2.5 2.5c.7 0 1.5-.4 1.8-1.2C9.5 7 9.5 6 9.8 5c-.4-.6-1-1-1.8-1z"/>
+                      <path d="M15.5 11c1 0 2 0 2.7 0-.4-.8-.7-1.8-.7-3 0-1.5.3-2.8 1-4-.7-1.2-2-2-3.5-2-2.5 0-4.5 2-4.5 4.5s2.5 4.5 5 4.5zm.5-7c.8 0 1.4.4 1.8 1-.3 1-.3 2 .1 2.8-.3.8-1.1 1.2-1.9 1.2-1.3 0-2.5-.8-2.5-2.5S14.3 4 16 4z"/>
+                    </svg>
+                  </span>
+                  <span>Skyvern</span>
+                </a>
+                <a href="https://www.browserbase.com/" target="_blank" rel="noopener" class="project-item">
+                  <span class="project-icon bg-dark-logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h6a4 4 0 0 1 4 4v0a4 4 0 0 1-4 4H6M6 12h7a4 4 0 0 1 4 4v0a4 4 0 0 1-4 4H6V4z"></path></svg>
+                  </span>
+                  <span>Browserbase</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column 6 -->
+        <div class="info-column col-6" style="--col-color: var(--desktop-color); --col-bg: var(--desktop-bg); --col-border: var(--desktop-border);">
+          <div class="chevron-header">
+            <span class="num-circle">6</span>
+            <span class="title-text">桌面动作通道</span>
+          </div>
+          <div class="card-body">
+            <div class="rw-section">
+              <div class="rw-row">
+                <span class="rw-label">读：</span>
+                <span class="rw-val">屏幕 / AX</span>
+              </div>
+              <div class="rw-row">
+                <span class="rw-label">写：</span>
+                <span class="rw-val">鼠标 / 键盘 / 跨应用</span>
+              </div>
+            </div>
+            
+            <div class="projects-box">
+              <div class="projects-label">代表项目 / 方案</div>
+              <div class="projects-list">
+                <a href="https://openai.com/codex/" target="_blank" rel="noopener" class="project-item">
+                  <span class="project-icon brand-codex">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                  </span>
+                  <span>Codex</span>
+                </a>
+                <a href="https://platform.openai.com/docs/guides/tools-computer-use" target="_blank" rel="noopener" class="project-item">
+                  <span class="project-icon brand-openai">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.7 10.3c-.1-.7-.5-1.3-1.1-1.6-.2-.1-.5-.2-.7-.2h-.4c-.1-.3-.3-.7-.5-1-.4-.6-1-1-1.7-1.2l-.6-.1c-.2-.3-.5-.6-.9-.8-.6-.3-1.4-.4-2.1-.2h-.2c-.3-.3-.6-.5-.9-.6-.7-.2-1.4-.1-2.1.2l-.3.2c-.3-.2-.7-.4-1-.5-.7-.2-1.4-.1-2.1.2-.6.3-1.1.8-1.4 1.4-.2.3-.3.7-.4 1v.2c-.3.1-.7.3-1 .5-.6.4-1 1-1.2 1.7-.1.4-.1.8 0 1.2v.3c-.3.2-.5.5-.6.9-.2.7-.1 1.4.2 2.1.3.6.8 1.1 1.4 1.4.3.2.7.3 1 .4v.2c.1.3.3.7.5 1 .4.6 1 1 1.7 1.2.3.1.6.1.9.1.2 0 .4 0 .6-.1.2.3.5.6.9.8.7.4 1.5.4 2.2.2h.2c.3.3.6.5.9.6.7.2 1.4.1 2.1-.2l.3-.2c.3.2.7.4 1 .5.7.2 1.4.1 2.1-.2.6-.3 1.1-.8 1.4-1.4.2-.3.3-.7.4-1v-.2c.3-.1.7-.3 1-.5.6-.4 1-1 1.2-1.7.1-.4.1-.8 0-1.2v-.3c.3-.2.5-.5.6-.9.2-.7.1-1.4-.2-2.1zm-8.8 8.6c-.4 0-.7-.2-.9-.5l-2.4-4.2c-.1-.2-.2-.5-.2-.7v-1.7l1.7-1h.2c.4 0 .7.2.9.5l2.4 4.2c.1.2.2.5.2.7v1.7l-1.9 1.3zm-3.3-1.9c-.2-.2-.3-.5-.3-.8V12c0-.4.2-.7.5-.9l3.6-2.1h1.7l-1 1.7V14c0 .4-.2.7-.5.9l-3.6 2.1h-.4zm6.7-.4l-3.6-2.1c-.2-.1-.5-.2-.8-.2H12c-.4 0-.7-.2-.9-.5L9 9.3v-1l3.6 2.1c.2.1.5.2.8.2H17v6.6l-1.1.4zm1.9-4.8c0 .4-.2.7-.5.9l-3.6 2.1h-1.7l1-1.7v-3.3c0-.4.2-.7.5-.9l3.6-2.1h.7zm-2.4-3.7l-2.4-4.2c-.2-.3-.5-.5-.9-.5h-.7L12 5.3c-.2.1-.5.2-.7.2H9.6c-.4 0-.7-.2-.9-.5L6.3 3.6h.4l3.6 2.1c.2.1.5.2.8.2H12c.4 0 .7.2.9.5l2.4 4.2h.1zm-6.2.5c-.2-.1-.5-.2-.7-.2h-1.7l1-1.7v3.3c0 .4.2.7.5.9l3.6 2.1h.3z"/></svg>
+                  </span>
+                  <span>OpenAI Computer Use</span>
+                </a>
+                <a href="https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/computer-use-tool" target="_blank" rel="noopener" class="project-item">
+                  <span class="project-icon brand-claude">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 18l1.5-4.5h5L12 18h2.3L9.5 5H7.3L2 18h2zm3.8-6.2L9 8.3l1.2 3.5H7.8zM17 18h2.2V5H17v13z"/></svg>
+                  </span>
+                  <span>Claude Computer Use</span>
+                </a>
+                <a href="https://blog.google/technology/google-deepmind/gemini-computer-use-model/" target="_blank" rel="noopener" class="project-item">
+                  <span class="project-icon brand-gemini">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <defs>
+                        <linearGradient id="gemini-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#4285f4" />
+                          <stop offset="35%" stop-color="#9b51e0" />
+                          <stop offset="70%" stop-color="#e051a8" />
+                          <stop offset="100%" stop-color="#f28e2b" />
+                        </linearGradient>
+                      </defs>
+                      <path d="M12 2c0 5.52-4.48 10-10 10 5.52 0 10 4.48 10 10 0-5.52 4.48-10 10-10-5.52 0-10-4.48-10-10z" fill="url(#gemini-grad)"/>
+                    </svg>
+                  </span>
+                  <span>Gemini Computer Use</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Tradeoff Bar -->
+      <div class="tradeoff-container">
+        <div class="tradeoff-arrow left">
+          <span class="arrowhead"></span>
+          <span class="line"></span>
+        </div>
+        <div class="tradeoff-text">
+          <span class="text-left">越靠左：快、稳定、可审计</span>
+          <span class="text-sep">；</span>
+          <span class="text-right">越靠右：覆盖广、成本高、风险高</span>
+        </div>
+        <div class="tradeoff-arrow right">
+          <span class="line"></span>
+          <span class="arrowhead"></span>
+        </div>
+      </div>
+
+      <div class="footnote">
+        说明：不同网站、产品和场景可用的技术面不同，应按目标、合规与可维护性择优组合。
+      </div>
+    </div>
+
+    <!-- Editorial Analysis Details -->
+    <div class="detailed-section">
+      <h2>深入分析与技术选型</h2>
+      
+      <!-- Key Strategic Rules -->
+      <div class="grid-4col">
+        <div class="detailed-card">
+          <h3>⚡️ 最高效</h3>
+          <p>官方 API 或稳定的前端内部接口。拿到的就是结构化数据，几乎不需要浏览器，运行成本最低。</p>
+        </div>
+        <div class="detailed-card">
+          <h3>🛠️ 最实用</h3>
+          <p>先用浏览器侦察 DOM/network 接口，再沉淀成 adapter 或抽取脚本，兼顾开发灵活性。</p>
+        </div>
+        <div class="detailed-card">
+          <h3>🌍 最通用</h3>
+          <p>浏览器动作通道和桌面动作通道，可以直接处理没有 API 的真实界面，对底层逻辑无依赖。</p>
+        </div>
+        <div class="detailed-card">
+          <h3>🎯 长期策略</h3>
+          <p>“界面层探索，接口层固化”。避免把多轮 LLM 点击当作长期的生产数据管道，以降低延迟和错误率。</p>
+        </div>
+      </div>
+
+      <!-- Key Concepts Clarification -->
+      <div class="grid-3col">
+        <div class="detailed-card">
+          <h3 class="tag-api">前端内部接口 vs 公开 API</h3>
+          <p>数据形态可能接近，但本质差异是“契约”。公开 API 有外部稳定性预期；前端内部接口是网站前端的实现细节，极易随着前端发版而失效，合规风险与反爬对抗较多。</p>
+        </div>
+        <div class="detailed-card">
+          <h3 class="tag-extract">HTML 文档 vs 浏览器 DOM</h3>
+          <p>HTML 是服务器返回的初始静态文本。DOM 是浏览器执行 JavaScript 后在内存里维护的实时渲染树。现代单页应用（SPA）和动态渲染网站，通常必须在运行时查看 DOM 或侦听 network。</p>
+        </div>
+        <div class="detailed-card">
+          <h3 class="tag-computer">Screenshot vs Computer Use</h3>
+          <p>Screenshot 是浏览器/桌面的“观察信号”（读取端）；Computer Use 是依靠像素截图反馈来驱动鼠标、键盘和系统的“操作范式”（写入端），二者属于不同维度的概念。</p>
+        </div>
+      </div>
+
+      <!-- Decision Guide Matrix -->
+      <div class="decision-matrix">
+        <div class="decision-card">
+          <h3>代表性方案的混淆点拨</h3>
+          <ul>
+            <li><strong>OpenCLI：</strong>不是单一的抓取层，而是“本地 Chrome 桥接 + 浏览器原语 + 适配器运行时”。它的核心价值是把临时的浏览器探索快速沉淀为可复用的 CLI 命令。</li>
+            <li><strong>Browserbase / Steel / Hyperbrowser / Browserless：</strong>属于“浏览器运行基础设施”，不是数据源本身。它们负责托管云端浏览器 session、并发控制、Captcha 绕过、代理以及操作录制调试。</li>
+            <li><strong>Stagehand / browser-use / Skyvern：</strong>是“浏览器动作通道”上的 AI 控制器。它们通过大模型多轮 loop 或自然语言提高操作的动态适应性，适合探索流程，不适合海量数据的低成本采集。</li>
+            <li><strong>Codex vs CUA / Computer Use：</strong>Codex 是面向开发者的工程工作台（包含终端、PR 和代码库逻辑）；CUA/Computer Use 则是模型底层的 GUI 动作驱动能力。</li>
+          </ul>
+        </div>
+        <div class="decision-card">
+          <h3>选型与适用规则</h3>
+          <ul>
+            <li><strong>长期稳定拿公开数据：</strong>优先路线为“官方 API → 前端内部接口 adapter”。这是最便宜、最快、且最利于自动化测试的方案。</li>
+            <li><strong>文档站/信息抽取生成知识库：</strong>优先选择 Firecrawl / Crawl4AI / Tavily。这类方案跳过复杂的交互，直接输出清洗后的 Markdown，适合 RAG 喂入。</li>
+            <li><strong>个人账号态网站（如小红书、X 等）：</strong>可使用 OpenCLI / 本地 Chrome bridge 复用本地真实登录态，降低登录风控。</li>
+            <li><strong>生产级复杂网页交互流程：</strong>推荐使用 Playwright / Stagehand 控制器，并将其跑在 Browserbase / Steel 等云基础设施上，确保高并发和可观测性。</li>
+            <li><strong>桌面 app 或完全无 DOM 的 Web App：</strong>最后手段是“桌面动作通道”（Computer Use / RPA），覆盖最广，但运行最慢且容易脆弱中断。</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Table View for precise lookup -->
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 15%">技术面</th>
+              <th style="width: 35%">读什么 (Observation)</th>
+              <th style="width: 35%">写 / 操作哪里 (Action)</th>
+              <th style="width: 15%">典型方案</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="label-badge api">公开 API</span></td>
+              <td>官方承诺的结构化数据、分页、搜索结果、对象详情。</td>
+              <td>官方允许的创建、更新、删除、发布等 API 操作。</td>
+              <td>
+                <div class="detailed-chips">
+                  <span class="detailed-chip">X API</span>
+                  <span class="detailed-chip">GitHub API</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="label-badge interface">前端内部接口</span></td>
+              <td>网页前端自己请求的 JSON、GraphQL、私有 endpoint 返回。</td>
+              <td>复用前端提交表单、点赞、收藏、发布时调用的私有接口。</td>
+              <td>
+                <div class="detailed-chips">
+                  <span class="detailed-chip">OpenCLI</span>
+                  <span class="detailed-chip">Apify Actor</span>
+                  <span class="detailed-chip">httpx/requests</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="label-badge html">HTML 文档</span></td>
+              <td>服务器返回的原始 HTML、链接、正文、metadata、静态表格。</td>
+              <td>基本不写。HTML 提取是纯读取提取，不做自动化交互。</td>
+              <td>
+                <div class="detailed-chips">
+                  <span class="detailed-chip">Firecrawl</span>
+                  <span class="detailed-chip">Crawl4AI</span>
+                  <span class="detailed-chip">Tavily</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="label-badge runtime">浏览器运行时</span></td>
+              <td>JavaScript 执行后的 DOM、Accessibility Tree、网络事件、截图。</td>
+              <td>可执行页面内 JavaScript 改变局部 DOM 状态，属于轻量调试写入。</td>
+              <td>
+                <div class="detailed-chips">
+                  <span class="detailed-chip">DevTools</span>
+                  <span class="detailed-chip">Playwright inspect</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="label-badge actions">浏览器动作通道</span></td>
+              <td>复用浏览器运行时的 DOM、AX Tree、network 以及截图作为观察。</td>
+              <td>在浏览器层模拟真实动作：点击、输入、滚动、导航、上传文件等。</td>
+              <td>
+                <div class="detailed-chips">
+                  <span class="detailed-chip">Playwright</span>
+                  <span class="detailed-chip">Stagehand</span>
+                  <span class="detailed-chip">browser-use</span>
+                  <span class="detailed-chip">Skyvern</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="label-badge desktop">桌面动作通道</span></td>
+              <td>屏幕像素截图、系统 Accessibility Tree、窗口状态。</td>
+              <td>模拟系统级键鼠操作、窗口切换、跨应用联动等。</td>
+              <td>
+                <div class="detailed-chips">
+                  <span class="detailed-chip">Computer Use</span>
+                  <span class="detailed-chip">Codex</span>
+                  <span class="detailed-chip">RPA</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <!-- Page Footer -->
+    <footer>
+      Sources checked on 2026-05-21:
+      <a href="https://opencli.info/docs/guide/getting-started.html" target="_blank" rel="noopener">OpenCLI</a>|
+      <a href="https://www.browserbase.com/stagehand/" target="_blank" rel="noopener">Stagehand</a>|
+      <a href="https://docs.firecrawl.dev/" target="_blank" rel="noopener">Firecrawl</a>|
+      <a href="https://docs.crawl4ai.com/" target="_blank" rel="noopener">Crawl4AI</a>|
+      <a href="https://steel.dev/" target="_blank" rel="noopener">Steel.dev</a>|
+      <a href="https://openai.com/index/computer-using-agent/" target="_blank" rel="noopener">OpenAI CUA</a>|
+      <a href="https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/computer-use-tool" target="_blank" rel="noopener">Claude CU</a>|
+      <a href="https://blog.google/technology/google-deepmind/gemini-computer-use-model/" target="_blank" rel="noopener">Gemini CU</a>
+    </footer>
+  </main>
+</body>
+</html>
