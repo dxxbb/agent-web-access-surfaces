@@ -35,7 +35,7 @@
 - 登录态强、交互复杂的网站：先用浏览器运行时和 Local Chrome Bridge 侦察，再用 Playwright/OpenCLI/adapter 固化。
 - 高变化、低频、跨应用、无 DOM 的任务：才上 Computer Use / RPA。
 - 不要把多轮 LLM 点击当成长期生产数据管道。它适合探索和兜底，不适合高吞吐采集。
-- App 不是技术层。Claude Desktop/Cowork 的浏览器任务优先走 Claude in Chrome，跨桌面 app 才走 Computer Use；Codex app 的浏览器验证走 in-app browser / Chrome extension，跨桌面 app 才走 Codex Computer Use；Gemini Agent 依赖 live web browser 和 Google apps；Antigravity 横跨 editor / terminal / browser，其中 browser-use 部分才属于这张网站访问谱系。
+- App 不是技术层。浏览器动作通道要分清两层：底层机制是 Playwright / CDP / extension / AX / screenshot；Codex browser use、Claude in Chrome、Gemini Agent、Antigravity 是产品能力。Gemini 这里讨论主流产品，不再把 Project Mariner 放主图。
 
 ## Files
 
