@@ -317,7 +317,7 @@
       height: 100%;
     }
 
-    /* Logo background blocks for specific brands (X, browser-use, Browserbase, OpenCLI bridge) */
+    /* Logo background blocks for specific brands (X, browser-use, Browserbase, Local Chrome Bridge) */
     .bg-dark-logo {
       background-color: #0f172a;
       color: #ffffff;
@@ -879,7 +879,7 @@
                   <span class="project-icon bg-dark-logo">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
                   </span>
-                  <span>OpenCLI bridge</span>
+                  <span>Local Chrome Bridge</span>
                 </a>
               </div>
             </div>
@@ -935,6 +935,18 @@
                   </span>
                   <span>Browserbase</span>
                 </a>
+                <a href="https://support.claude.com/en/articles/12012173-getting-started-with-claude-for-chrome" target="_blank" rel="noopener" class="project-item">
+                  <span class="project-icon brand-claude">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 18l1.5-4.5h5L12 18h2.3L9.5 5H7.3L2 18h2zm3.8-6.2L9 8.3l1.2 3.5H7.8zM17 18h2.2V5H17v13z"/></svg>
+                  </span>
+                  <span>Claude in Chrome</span>
+                </a>
+                <a href="https://support.google.com/labs/answer/16270604" target="_blank" rel="noopener" class="project-item">
+                  <span class="project-icon brand-gemini">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c0 5.52-4.48 10-10 10 5.52 0 10 4.48 10 10 0-5.52 4.48-10 10-10-5.52 0-10-4.48-10-10z"/></svg>
+                  </span>
+                  <span>Gemini Mariner</span>
+                </a>
               </div>
             </div>
           </div>
@@ -961,11 +973,11 @@
             <div class="projects-box">
               <div class="projects-label">代表项目 / 方案</div>
               <div class="projects-list">
-                <a href="https://openai.com/codex/" target="_blank" rel="noopener" class="project-item">
+                <a href="https://openai.com/index/computer-using-agent/" target="_blank" rel="noopener" class="project-item">
                   <span class="project-icon brand-codex">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
                   </span>
-                  <span>Codex</span>
+                  <span>OpenAI CUA</span>
                 </a>
                 <a href="https://platform.openai.com/docs/guides/tools-computer-use" target="_blank" rel="noopener" class="project-item">
                   <span class="project-icon brand-openai">
@@ -1069,10 +1081,10 @@
         <div class="decision-card">
           <h3>代表性方案的混淆点拨</h3>
           <ul>
-            <li><strong>OpenCLI：</strong>不是单一的抓取层，而是“本地 Chrome 桥接 + 浏览器原语 + 适配器运行时”。它的核心价值是把临时的浏览器探索快速沉淀为可复用的 CLI 命令。</li>
+            <li><strong>Local Chrome Bridge：</strong>不是数据源，而是复用本机 Chrome、登录态、cookies、DevTools/extension 通道的一类连接方式。OpenCLI 可以利用这类桥接，把临时浏览器探索沉淀为可复用 CLI 命令。</li>
             <li><strong>Browserbase / Steel / Hyperbrowser / Browserless：</strong>属于“浏览器运行基础设施”，不是数据源本身。它们负责托管云端浏览器 session、并发控制、Captcha 绕过、代理以及操作录制调试。</li>
             <li><strong>Stagehand / browser-use / Skyvern：</strong>是“浏览器动作通道”上的 AI 控制器。它们通过大模型多轮 loop 或自然语言提高操作的动态适应性，适合探索流程，不适合海量数据的低成本采集。</li>
-            <li><strong>Codex vs CUA / Computer Use：</strong>Codex 是面向开发者的工程工作台（包含终端、PR 和代码库逻辑）；CUA/Computer Use 则是模型底层的 GUI 动作驱动能力。</li>
+            <li><strong>Claude / Codex / Gemini app：</strong>App 是产品外壳，不是技术层。要看它调用的能力：Claude in Chrome、Gemini Mariner 属于浏览器动作通道；OpenAI CUA、Claude Computer Use 属于桌面动作通道；Codex app 的 code/shell/git 主线不在这张网站访问谱系里。</li>
           </ul>
         </div>
         <div class="decision-card">
@@ -1080,7 +1092,7 @@
           <ul>
             <li><strong>长期稳定拿公开数据：</strong>优先路线为“官方 API → 前端内部接口 adapter”。这是最便宜、最快、且最利于自动化测试的方案。</li>
             <li><strong>文档站/信息抽取生成知识库：</strong>优先选择 Firecrawl / Crawl4AI / Tavily。这类方案跳过复杂的交互，直接输出清洗后的 Markdown，适合 RAG 喂入。</li>
-            <li><strong>个人账号态网站（如小红书、X 等）：</strong>可使用 OpenCLI / 本地 Chrome bridge 复用本地真实登录态，降低登录风控。</li>
+            <li><strong>个人账号态网站（如小红书、X 等）：</strong>可使用 Local Chrome Bridge / OpenCLI 复用本地真实登录态，降低登录风控。</li>
             <li><strong>生产级复杂网页交互流程：</strong>推荐使用 Playwright / Stagehand 控制器，并将其跑在 Browserbase / Steel 等云基础设施上，确保高并发和可观测性。</li>
             <li><strong>桌面 app 或完全无 DOM 的 Web App：</strong>最后手段是“桌面动作通道”（Computer Use / RPA），覆盖最广，但运行最慢且容易脆弱中断。</li>
           </ul>
@@ -1141,6 +1153,7 @@
               <td>
                 <div class="detailed-chips">
                   <span class="detailed-chip">DevTools</span>
+                  <span class="detailed-chip">Local Chrome Bridge</span>
                   <span class="detailed-chip">Playwright inspect</span>
                 </div>
               </td>
@@ -1155,6 +1168,8 @@
                   <span class="detailed-chip">Stagehand</span>
                   <span class="detailed-chip">browser-use</span>
                   <span class="detailed-chip">Skyvern</span>
+                  <span class="detailed-chip">Claude in Chrome</span>
+                  <span class="detailed-chip">Gemini Mariner</span>
                 </div>
               </td>
             </tr>
@@ -1164,8 +1179,8 @@
               <td>模拟系统级键鼠操作、窗口切换、跨应用联动等。</td>
               <td>
                 <div class="detailed-chips">
-                  <span class="detailed-chip">Computer Use</span>
-                  <span class="detailed-chip">Codex</span>
+                  <span class="detailed-chip">OpenAI CUA</span>
+                  <span class="detailed-chip">Claude Computer Use</span>
                   <span class="detailed-chip">RPA</span>
                 </div>
               </td>

@@ -26,14 +26,16 @@
 - OpenCLI、Stagehand、browser-use、Skyvern、Browserbase、Firecrawl 分别应该放在哪一层？
 - 什么时候应该从浏览器探索下沉成接口 adapter？
 - 做数据获取、账号态操作、复杂网页工作流、桌面应用自动化时，应该怎么选型？
+- Claude app、Codex app、Gemini app 这类产品外壳分别调用了谱系里的哪一层能力？
 
 ## 快速结论
 
 - 长期稳定的数据获取：优先 `公开 API -> 前端内部接口 adapter`。
 - 文档站和知识库抽取：优先 `HTML/Markdown extraction`，例如 Firecrawl、Crawl4AI。
-- 登录态强、交互复杂的网站：先用浏览器运行时侦察，再用 Playwright/OpenCLI/adapter 固化。
+- 登录态强、交互复杂的网站：先用浏览器运行时和 Local Chrome Bridge 侦察，再用 Playwright/OpenCLI/adapter 固化。
 - 高变化、低频、跨应用、无 DOM 的任务：才上 Computer Use / RPA。
 - 不要把多轮 LLM 点击当成长期生产数据管道。它适合探索和兜底，不适合高吞吐采集。
+- App 不是技术层。Claude in Chrome、Gemini Mariner 归到浏览器动作通道；OpenAI CUA、Claude Computer Use 归到桌面动作通道；Codex app 的 code/shell/git 主线不属于这张网站访问谱系。
 
 ## Files
 
@@ -51,4 +53,6 @@
 - [Crawl4AI](https://docs.crawl4ai.com/)
 - [OpenAI Computer Use](https://platform.openai.com/docs/guides/tools-computer-use)
 - [Claude Computer Use](https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/computer-use-tool)
+- [Claude in Chrome](https://support.claude.com/en/articles/12012173-getting-started-with-claude-for-chrome)
 - [Gemini Computer Use](https://blog.google/technology/google-deepmind/gemini-computer-use-model/)
+- [Project Mariner](https://support.google.com/labs/answer/16270604)
