@@ -882,13 +882,13 @@
             </div>
             
             <div class="projects-box">
-              <div class="projects-label">代表项目 / 方案</div>
+              <div class="projects-label">接口 / 信号</div>
               <div class="projects-list">
-                <a href="https://github.com/microsoft/playwright" target="_blank" rel="noopener" class="project-item">
+                <a href="https://chromedevtools.github.io/devtools-protocol/" target="_blank" rel="noopener" class="project-item">
                   <span class="project-icon brand-playwright">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="2" y1="20" x2="22" y2="20"></line><polygon points="10 8 15 11 10 14 10 8"></polygon></svg>
                   </span>
-                  <span>Playwright</span>
+                  <span>DevTools / CDP</span>
                 </a>
                 <a href="https://github.com/jackwener/opencli" target="_blank" rel="noopener" class="project-item">
                   <span class="project-icon bg-dark-logo">
@@ -896,6 +896,12 @@
                   </span>
                   <span>Local Chrome Bridge</span>
                 </a>
+                <div class="project-item">
+                  <span class="project-icon bg-dark-logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"></rect><path d="M8 12h8M12 8v8"></path></svg>
+                  </span>
+                  <span>Extension / AX / Screenshot</span>
+                </div>
               </div>
             </div>
           </div>
@@ -923,22 +929,13 @@
               <div class="projects-label">代表项目 / 方案</div>
               <div class="projects-list">
                 <div class="project-group">
-                  <div class="group-label">底层机制</div>
-                  <a href="https://github.com/microsoft/playwright" target="_blank" rel="noopener" class="project-item">
-                    <span class="project-icon brand-playwright">
-                      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 5h16v14H4z" opacity=".15"/><path d="M4 5h16v14H4V5zm2 2v10h12V7H6zm2 2h4v2H8V9zm0 4h8v2H8v-2z"/></svg>
-                    </span>
-                    <span>Playwright / CDP</span>
-                  </a>
-                  <div class="project-item">
-                    <span class="project-icon bg-dark-logo">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"></rect><path d="M8 12h8M12 8v8"></path></svg>
-                    </span>
-                    <span>Extension / AX / Screenshot</span>
-                  </div>
-                </div>
-                <div class="project-group">
-                  <div class="group-label">开发框架 / 基础设施</div>
+                  <div class="group-label">控制框架 / Agent 框架</div>
+                <a href="https://github.com/microsoft/playwright" target="_blank" rel="noopener" class="project-item">
+                  <span class="project-icon brand-playwright">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 5h16v14H4z" opacity=".15"/><path d="M4 5h16v14H4V5zm2 2v10h12V7H6zm2 2h4v2H8V9zm0 4h8v2H8v-2z"/></svg>
+                  </span>
+                  <span>Playwright</span>
+                </a>
                 <a href="https://www.browserbase.com/stagehand/" target="_blank" rel="noopener" class="project-item">
                   <span class="project-icon brand-stagehand">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5M14 10V5a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v7.5M6 14v-1.5a1.5 1.5 0 0 0-3 0v4.75a6.75 6.75 0 0 0 11.83 4.54l1.9-1.9a2 2 0 0 0 0-2.83v0a2 2 0 0 0-2.83 0l-1.9 1.9"></path></svg>
@@ -1115,10 +1112,11 @@
           <ul>
             <li><strong>Local Chrome Bridge：</strong>不是数据源，而是复用本机 Chrome、登录态、cookies、DevTools/extension 通道的一类连接方式。OpenCLI 可以利用这类桥接，把临时浏览器探索沉淀为可复用 CLI 命令。</li>
             <li><strong>Browserbase / Steel / Hyperbrowser / Browserless：</strong>属于“浏览器运行基础设施”，不是数据源本身。它们负责托管云端浏览器 session、并发控制、Captcha 绕过、代理以及操作录制调试。</li>
+            <li><strong>Playwright 的位置：</strong>它不是浏览器运行时本身，而是用 CDP / browser protocol 操作浏览器的控制框架，所以属于“浏览器动作通道”。CDP、extension、AX、screenshot 更接近“浏览器运行时暴露出的接口 / 信号”。</li>
             <li><strong>Stagehand / browser-use / Skyvern：</strong>是“浏览器动作通道”上的 AI 控制器。它们通过大模型多轮 loop 或自然语言提高操作的动态适应性，适合探索流程，不适合海量数据的低成本采集。</li>
-            <li><strong>Codex browser use / Claude in Chrome / Gemini Agent：</strong>是产品能力，不是 Playwright 的平级替代品。它们落在浏览器动作通道，底层会组合 Playwright/CDP、extension、AX、screenshot 等机制。</li>
+            <li><strong>Codex browser use / Claude in Chrome / Gemini Agent：</strong>是产品能力，不是 Playwright 的平级替代品。它们落在浏览器动作通道，通常建立在浏览器控制接口、extension、AX、screenshot 等能力之上。</li>
             <li><strong>Claude / Codex app：</strong>Claude Desktop/Cowork 的浏览器任务优先走 Claude in Chrome，跨桌面 app 才走 Computer Use；Codex app 是 coding command center，浏览器验证走 in-app browser / Chrome extension，跨桌面 app 才走 Codex Computer Use。</li>
-            <li><strong>Gemini app / Antigravity：</strong>Google 主流 agent 产品不是 Project Mariner。Gemini Agent 是 Gemini app 里的多步任务入口，依赖 live web browser 和 Google apps；Antigravity 是开发者 agent 平台，横跨 editor / terminal / browser，其中 browser-use 部分才落在这张谱系的浏览器动作通道。</li>
+            <li><strong>Gemini app / Antigravity：</strong>Gemini Agent 是 Gemini app 里的多步任务入口，依赖 live web browser 和 Google apps；Antigravity 是开发者 agent 平台，横跨 editor / terminal / browser，其中 browser-use 部分才落在这张谱系的浏览器动作通道。</li>
           </ul>
         </div>
         <div class="decision-card">
@@ -1187,8 +1185,10 @@
               <td>
                 <div class="detailed-chips">
                   <span class="detailed-chip">DevTools</span>
+                  <span class="detailed-chip">CDP</span>
+                  <span class="detailed-chip">Extension</span>
+                  <span class="detailed-chip">AX / Screenshot</span>
                   <span class="detailed-chip">Local Chrome Bridge</span>
-                  <span class="detailed-chip">Playwright inspect</span>
                 </div>
               </td>
             </tr>
@@ -1198,9 +1198,7 @@
               <td>在浏览器层模拟真实动作：点击、输入、滚动、导航、上传文件等。</td>
               <td>
                 <div class="detailed-chips">
-                  <span class="detailed-chip">Playwright / CDP</span>
-                  <span class="detailed-chip">Extension</span>
-                  <span class="detailed-chip">AX / Screenshot</span>
+                  <span class="detailed-chip">Playwright</span>
                   <span class="detailed-chip">Stagehand</span>
                   <span class="detailed-chip">browser-use</span>
                   <span class="detailed-chip">Skyvern</span>
