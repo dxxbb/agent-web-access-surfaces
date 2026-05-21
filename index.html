@@ -941,11 +941,17 @@
                   </span>
                   <span>Claude in Chrome</span>
                 </a>
-                <a href="https://blog.google/innovation-and-ai/models-and-research/google-deepmind/gemini-computer-use-model/" target="_blank" rel="noopener" class="project-item">
+                <a href="https://gemini.google/overview/agent/" target="_blank" rel="noopener" class="project-item">
                   <span class="project-icon brand-gemini">
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c0 5.52-4.48 10-10 10 5.52 0 10 4.48 10 10 0-5.52 4.48-10 10-10-5.52 0-10-4.48-10-10z"/></svg>
                   </span>
-                  <span>Project Mariner</span>
+                  <span>Gemini Agent</span>
+                </a>
+                <a href="https://www.antigravity.google/" target="_blank" rel="noopener" class="project-item">
+                  <span class="project-icon bg-dark-logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18h16M6 14l6-10 6 10M9 14h6"></path></svg>
+                  </span>
+                  <span>Antigravity</span>
                 </a>
               </div>
             </div>
@@ -990,22 +996,6 @@
                     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 18l1.5-4.5h5L12 18h2.3L9.5 5H7.3L2 18h2zm3.8-6.2L9 8.3l1.2 3.5H7.8zM17 18h2.2V5H17v13z"/></svg>
                   </span>
                   <span>Claude Computer Use</span>
-                </a>
-                <a href="https://blog.google/technology/google-deepmind/gemini-computer-use-model/" target="_blank" rel="noopener" class="project-item">
-                  <span class="project-icon brand-gemini">
-                    <svg viewBox="0 0 24 24" fill="none">
-                      <defs>
-                        <linearGradient id="gemini-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                          <stop offset="0%" stop-color="#4285f4" />
-                          <stop offset="35%" stop-color="#9b51e0" />
-                          <stop offset="70%" stop-color="#e051a8" />
-                          <stop offset="100%" stop-color="#f28e2b" />
-                        </linearGradient>
-                      </defs>
-                      <path d="M12 2c0 5.52-4.48 10-10 10 5.52 0 10 4.48 10 10 0-5.52 4.48-10 10-10-5.52 0-10-4.48-10-10z" fill="url(#gemini-grad)"/>
-                    </svg>
-                  </span>
-                  <span>Gemini Computer Use</span>
                 </a>
               </div>
             </div>
@@ -1084,7 +1074,7 @@
             <li><strong>Local Chrome Bridge：</strong>不是数据源，而是复用本机 Chrome、登录态、cookies、DevTools/extension 通道的一类连接方式。OpenCLI 可以利用这类桥接，把临时浏览器探索沉淀为可复用 CLI 命令。</li>
             <li><strong>Browserbase / Steel / Hyperbrowser / Browserless：</strong>属于“浏览器运行基础设施”，不是数据源本身。它们负责托管云端浏览器 session、并发控制、Captcha 绕过、代理以及操作录制调试。</li>
             <li><strong>Stagehand / browser-use / Skyvern：</strong>是“浏览器动作通道”上的 AI 控制器。它们通过大模型多轮 loop 或自然语言提高操作的动态适应性，适合探索流程，不适合海量数据的低成本采集。</li>
-            <li><strong>Claude / Codex / Gemini app：</strong>App 是产品外壳，不是技术层。要看它调用的能力：Claude in Chrome、Project Mariner 属于浏览器动作通道；OpenAI CUA、Claude Computer Use 属于桌面动作通道；Codex app 的 code/shell/git 主线不在这张网站访问谱系里。</li>
+            <li><strong>Gemini app / Antigravity：</strong>Google 主流 agent 产品不是 Project Mariner。Gemini Agent 是 Gemini app 里的多步任务入口，依赖 live web browser 和 Google apps；Antigravity 是开发者 agent 平台，横跨 editor / terminal / browser，其中 browser-use 部分才落在这张谱系的浏览器动作通道。</li>
           </ul>
         </div>
         <div class="decision-card">
@@ -1169,7 +1159,8 @@
                   <span class="detailed-chip">browser-use</span>
                   <span class="detailed-chip">Skyvern</span>
                   <span class="detailed-chip">Claude in Chrome</span>
-                  <span class="detailed-chip">Project Mariner</span>
+                  <span class="detailed-chip">Gemini Agent</span>
+                  <span class="detailed-chip">Antigravity browser</span>
                 </div>
               </td>
             </tr>
@@ -1201,7 +1192,8 @@
       <a href="https://steel.dev/" target="_blank" rel="noopener">Steel.dev</a>|
       <a href="https://openai.com/index/computer-using-agent/" target="_blank" rel="noopener">OpenAI CUA</a>|
       <a href="https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/computer-use-tool" target="_blank" rel="noopener">Claude CU</a>|
-      <a href="https://blog.google/technology/google-deepmind/gemini-computer-use-model/" target="_blank" rel="noopener">Gemini CU</a>
+      <a href="https://gemini.google/overview/agent/" target="_blank" rel="noopener">Gemini Agent</a>|
+      <a href="https://www.antigravity.google/" target="_blank" rel="noopener">Antigravity</a>
     </footer>
   </main>
 </body>
