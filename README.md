@@ -1,46 +1,66 @@
 # Agent Web Access Surfaces
 
-一张图解释：Agent 访问网站时，到底是在读什么、操作哪里，以及为什么不同方案的效率、稳定性和适配性差别很大。
+一张图解释：Agent 使用网站时接触的到底是哪一面、谁在决定下一步、使用哪种登录状态，以及怎样验证业务结果。
 
 在线页面：https://dxxbb.github.io/agent-web-access-surfaces/
 
 ## 核心观点
 
-“让 Agent 访问网站”不是一个技术方案，而是一组读写技术面的选择。
+“让 Agent 访问网站”不是一个技术方案，而是四个独立问题：
 
-越靠近结构化接口，速度越快、成本越低、可测试性越强；越靠近真实屏幕，覆盖越广、适配性越强，但延迟、脆弱性和安全风险都会上升。
+1. 接触哪个环境：服务端、浏览器还是整个桌面？
+2. 通过什么接口观察和动作：API、文档、DOM/AX/Network、截图、鼠标键盘？
+3. 谁决定下一步：脚本/状态机、模型辅助，还是 Agent loop？
+4. 使用哪个 Session，最后怎样独立验证结果？
+
+越靠近结构化接口，语义密度通常越高、运行闭环越短、吞吐越高；越靠近像素和真实桌面，覆盖越广、接入越快，但每次运行的观察—决策—动作—验证闭环通常更长。向右不是“能力更高级”，而是在用运行成本换覆盖。
 
 ## 六个技术面
 
-1. **公开 API**：官方承诺的结构化接口，例如 X API、GitHub API。
-2. **前端内部接口**：网页前端自己调用的 JSON / GraphQL / private endpoint。
-3. **HTML 文档**：服务器返回的初始文档，适合文档站和静态内容抽取。
-4. **浏览器运行时**：JavaScript 执行后的 DOM、Accessibility Tree、network、screenshot。
-5. **浏览器动作通道**：通过 Playwright、Stagehand、browser-use、Skyvern 等控制浏览器点击、输入、滚动。
-6. **桌面动作通道**：通过 Computer Use / RPA 操作真实屏幕、鼠标、键盘和跨应用流程。
+1. **业务 API**：对象、字段、Schema、错误码与 CRUD/RPC。
+2. **HTTP / 内部接口**：HTML、JSON、GraphQL、RSS、网站前端使用的 endpoint。
+3. **文档与内容**：正文、链接、PDF、Markdown、表格与 metadata。
+4. **浏览器结构**：DOM、Accessibility Tree、Network、Runtime、元素状态与 Locator。
+5. **浏览器像素与动作**：Screenshot、布局、Locator/坐标、输入、滚动和上传。
+6. **桌面与跨应用**：Window、系统 Accessibility、屏幕、鼠标、键盘和应用切换。
+
+这六列是“接触面/技术路线”，不是严格协议分层，也不是能力等级。Browser Agent 通常是“模型控制器 + 浏览器自动化工具 + Session + Verify”的组合，不是第七个浏览器技术层。
 
 ## 适合讨论的问题
 
 - 为什么 Playwright 很强，但大模型厂商还要做 Computer Use？
 - API、HTTP endpoint、HTML、DOM、screenshot、Computer Use 的本质区别是什么？
-- OpenCLI、Stagehand、browser-use、Skyvern、Browserbase、Firecrawl 分别应该放在哪一层？
+- OpenCLI、Stagehand、browser-use、Skyvern、Browserbase、Firecrawl 为什么会横跨多层？
 - 什么时候应该从浏览器探索下沉成接口 adapter？
 - 做数据获取、账号态操作、复杂网页工作流、桌面应用自动化时，应该怎么选型？
-- Claude app、Codex app、Gemini app、Antigravity 这类产品外壳分别调用了谱系里的哪一层能力？
+- Claude、Codex 这类产品入口在一次任务中究竟调用了哪种观察与动作工具？
 
 ## 快速结论
 
-- 长期稳定的数据获取：优先 `公开 API -> 前端内部接口 adapter`。
-- 文档站和知识库抽取：优先 `HTML/Markdown extraction`，例如 Firecrawl、Crawl4AI。
-- 登录态强、交互复杂的网站：先用浏览器运行时和 Local Chrome Bridge 侦察，再用 Playwright/OpenCLI/adapter 固化。
-- 高变化、低频、跨应用、无 DOM 的任务：才上 Computer Use / RPA。
-- 不要把多轮 LLM 点击当成长期生产数据管道。它适合探索和兜底，不适合高吞吐采集。
-- App 不是技术层。第 4 层是浏览器运行时暴露的接口和信号，如 CDP / extension / AX / screenshot；第 5 层是使用这些接口执行点击、输入、滚动的控制框架和产品能力，如 Playwright、Codex browser use、Claude in Chrome、Gemini Agent、Antigravity。
+- 明确业务对象：优先 API / Connector / CLI。
+- 公开信息调研：Search → Fetch 原文 → 必要时 Browser。
+- 稳定网页交互：优先 Playwright / Selenium / Puppeteer 等结构化浏览器控制。
+- 开放任务、路径难预枚举：在浏览器底座上增加模型辅助或 Browser Agent。
+- Canvas、远程桌面、原生 App、跨应用：使用 Computer Use / RPA，并加强审批与独立验证。
+- 不要把多轮 LLM 点击当成高吞吐生产数据管道。
+
+## 代表方案怎样定位
+
+- **Playwright / Selenium / Puppeteer**：浏览器控制框架，可被脚本、模型辅助或 Agent 控制器调用。
+- **Browserbase / Steel / Browserless**：浏览器 Session 与运行基础设施，不与 Playwright 并列为控制框架。
+- **Stagehand / browser-use / Skyvern**：把模型决策与浏览器工具组合起来的 Agent/智能控制层。
+- **Firecrawl / Crawl4AI**：以内容读取和解析为主，也可以启动浏览器渲染动态页面。
+- **OpenCLI**：跨层 adapter 与统一命令面，实际可走 PUBLIC、COOKIE、INTERCEPT、UI、LOCAL 或外部 CLI。
+- **Codex / Claude**：产品入口，可横跨 Search、HTTP/API、MCP、Browser、Chrome 和 Computer Use。仅凭产品名或页面可见性不能判断本次底层路径；要看工具 trace。
+- **OpenAI / Claude Computer Use**：可运行在浏览器或桌面 GUI；视觉是常见方式，也可以混合 DOM、AX、Locator 与程序化动作。
+
+执行器发出了动作不等于业务目标已经完成。可靠系统需要用业务对象、接收方状态或其他独立信号 Verify。
 
 ## Files
 
 - `index.html`：主页面。
-- `assets/agent-website-access-surfaces.png`：生成的概念图备份。
+- `assets/agent-website-access-surfaces.png`：桌面主图。
+- `assets/twitter-card.jpg`：社交分享图。
 
 ## References
 
